@@ -1,97 +1,90 @@
--- Criar banco de dados bd_sistema_bancario
--- Criar 5 tabelas quaisquer
+CREATE DATABASE bd_sistema_bancario;
+
+-- Criar 5 tabelas: conta corrente, conta poupanca, empréstimo pessoal, previdência complementar e pagamento de contas
+
+CREATE TABLE conta_corrente (
+    id_conta SERIAL PRIMARY KEY,
+    numero_conta VARCHAR(20) NOT NULL,
+    saldo NUMERIC(15, 2) NOT NULL
+);
+
+CREATE TABLE conta_poupanca (
+    id_conta SERIAL PRIMARY KEY,
+    numero_conta VARCHAR(20) NOT NULL,
+    saldo NUMERIC(15, 2) NOT NULL
+);
+
+CREATE TABLE emprestimo_pessoal (
+    id_emprestimo SERIAL PRIMARY KEY,
+    numero_emprestimo VARCHAR(20) NOT NULL,
+    valor NUMERIC(15, 2) NOT NULL,
+    taxa_juros NUMERIC(5, 2) NOT NULL
+);
+
+CREATE TABLE previdencia_complementar (
+    id_previdencia SERIAL PRIMARY KEY,
+    numero_plano VARCHAR(20) NOT NULL,
+    saldo_acumulado NUMERIC(15, 2) NOT NULL
+);
+
+CREATE TABLE pagamento_contas (
+    id_pagamento SERIAL PRIMARY KEY,
+    numero_pagamento VARCHAR(20) NOT NULL,
+    valor_pagamento NUMERIC(15, 2) NOT NULL,
+    data_pagamento DATE NOT NULL
+);
+
 -- Criar tabelas conforme MER (Sistema Bancario):
--- Deletar as 5 tabelas criadas aleatoriamente
--- alterar as tabelas conforme o MER atualizado
--- Criar um esquema com o seu nome
 
-CREATE TABLE tabela1 (
-    id SERIAL PRIMARY KEY,
-    coluna1 VARCHAR(50),
-    coluna2 INT
-);
-
-CREATE TABLE tabela2 (
-    id SERIAL PRIMARY KEY,
-    coluna1 TEXT,
-    coluna2 BOOLEAN
-);
-
-CREATE TABLE tabela3 (
-    id SERIAL PRIMARY KEY,
-    coluna1 DATE,
-    coluna2 DECIMAL(10, 2)
-);
-
-CREATE TABLE tabela4 (
-    id SERIAL PRIMARY KEY,
-    coluna1 TIMESTAMP,
-    coluna2 VARCHAR(100)
-);
-
-CREATE TABLE tabela5 (
-    id SERIAL PRIMARY KEY,
-    coluna1 CHAR(10),
-    coluna2 DOUBLE PRECISION
-);
-
--- Tabela Cliente
 CREATE TABLE Cliente (
     cliente_id SERIAL PRIMARY KEY,
     nome_cliente VARCHAR(100) NOT NULL,
-    cidade_cliente VARCHAR(100),
-    endereco_cliente TEXT
+    endereco_cliente TEXT,
+    telefone_cliente VARCHAR(15)
 );
 
--- Tabela Conta
 CREATE TABLE Conta (
     conta_id SERIAL PRIMARY KEY,
-    numero_conta VARCHAR(20) UNIQUE NOT NULL,
-    nome_agencia VARCHAR(100) NOT NULL,
-    saldo DECIMAL(15, 2) DEFAULT 0.00,
-    cliente_id INT REFERENCES Cliente(cliente_id)
+    numero_conta VARCHAR(20) NOT NULL,
+    saldo NUMERIC(15, 2) NOT NULL,
+    cliente_id INT REFERENCES Cliente(cliente_id),
+    agencia_id INT REFERENCES Agencia(agencia_id)
 );
 
--- Tabela Emprestimo
-CREATE TABLE Emprestimo (
-    emprestimo_id SERIAL PRIMARY KEY,
-    numero_emprestimo VARCHAR(20) UNIQUE NOT NULL,
-    nome_agencia VARCHAR(100) NOT NULL,
-    valor DECIMAL(15, 2) NOT NULL,
-    cliente_id INT REFERENCES Cliente(cliente_id)
-);
-
--- Tabela Agencia
 CREATE TABLE Agencia (
     agencia_id SERIAL PRIMARY KEY,
-    nome_agencia VARCHAR(100) UNIQUE NOT NULL,
-    cidade_agencia VARCHAR(100),
-    depositos DECIMAL(15, 2) DEFAULT 0.00
+    nome_agencia VARCHAR(100) NOT NULL,
+    cidade_agencia VARCHAR(50)
 );
 
-DROP TABLE IF EXISTS tabela1 CASCADE;
-DROP TABLE IF EXISTS tabela2 CASCADE;
-DROP TABLE IF EXISTS tabela3 CASCADE;
-DROP TABLE IF EXISTS tabela4 CASCADE;
-DROP TABLE IF EXISTS tabela5 CASCADE;
+CREATE TABLE Emprestimo (
+    emprestimo_id SERIAL PRIMARY KEY,
+    numero_emprestimo VARCHAR(20) NOT NULL,
+    valor NUMERIC(15, 2) NOT NULL,
+    conta_id INT REFERENCES Conta(conta_id)
+);
 
--- Adicionar uma coluna "email_cliente" à tabela Cliente
-ALTER TABLE Cliente ADD COLUMN email_cliente VARCHAR(100);
+CREATE TABLE Transacao (
+    transacao_id SERIAL PRIMARY KEY,
+    tipo_transacao VARCHAR(50) NOT NULL,
+    valor NUMERIC(15, 2) NOT NULL,
+    data_transacao DATE NOT NULL,
+    conta_id INT REFERENCES Conta(conta_id)
+);
 
--- Alterar o tipo de dado da coluna "saldo" na tabela Conta
-ALTER TABLE Conta ALTER COLUMN saldo TYPE NUMERIC(20, 2);
+-- Deletar as 5 tabelas criadas aleatoriamente 
+DROP TABLE conta_corrente;
+DROP TABLE conta_poupanca;
+DROP TABLE emprestimo_pessoal;
+DROP TABLE previdencia_complementar;
+DROP TABLE pagamento_contas;
 
--- Adicionar uma coluna "data_emprestimo" à tabela Emprestimo
-ALTER TABLE Emprestimo ADD COLUMN data_emprestimo DATE;
+-- alterar as tabelas conforme o MER atualizado
+ALTER TABLE Conta
+ADD COLUMN tipo_conta VARCHAR(50);
 
--- Renomear a coluna "depositos" para "total_depositos" na tabela Agencia
-ALTER TABLE Agencia RENAME COLUMN depositos TO total_depositos;
+ALTER TABLE Emprestimo
+ADD COLUMN taxa_juros NUMERIC(5, 2);
 
--- Criar o esquema Marcos
+-- Criar um esquema com o seu nome
 CREATE SCHEMA Marcos;
-
--- Mover as tabelas para o esquema Marcos
-ALTER TABLE Cliente SET SCHEMA Marcos;
-ALTER TABLE Conta SET SCHEMA Marcos;
-ALTER TABLE Emprestimo SET SCHEMA Marcos;
-ALTER TABLE Agencia SET SCHEMA Marcos;
